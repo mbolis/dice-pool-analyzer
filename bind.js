@@ -3,13 +3,12 @@
 var vm = new Vue({
 	el : '#app',
 	data : {
-		facesSpec : '',
-		diceSpec : '',
+		facesSpec : 'S = scudo\nC = colpito\nX = scudo + colpito\nZ = speciale',
+		diceSpec : 'B = S C C Z\nR = S S C C C Z\nN = S C C X X Z',
 		faces : [],
 		dice : [],
 		pool : [],
 		rollsPower : 100000,
-		rollsAllOrMore : false,
 		rollResult : '',
 		errors : {
 			faces : null,
@@ -46,6 +45,7 @@ var vm = new Vue({
 			}
 			return out;
 		},
+		// TODO : keep old values when new are added
 		values : function() {
 			var values = [];
 			for (var i = 0; i < this.faces.length; i++) {
@@ -56,11 +56,14 @@ var vm = new Vue({
 			return values.map(function(v) {
 				return {
 					name : v,
-					target : '',
-					orMore : false
+					target : ''
 				};
 			});
 		}
+	},
+	mounted : function() {
+		this.parseFaces();
+		this.parseDice();
 	},
 	methods : {
 		parseFaces : debounce(function(e) {
@@ -134,99 +137,123 @@ var vm = new Vue({
 				this.pool.splice(idx, 1);
 			}
 		},
-		selectAllOrMore : function() {
-			var selectAll = this.rollsAllOrMore;
-			for (var i = 0; i < this.values.length; i++) {
-				this.values[i].orMore = selectAll
-			}
-		},
 		rollTheDice : function() {
+			// disable all inputs
 			var inputs = this.$el.querySelectorAll('textarea,input');
+			console.log(inputs)
 			for (var i = 0; i < inputs.length; i++) {
+				console.log(inputs[i].disabled)
 				inputs[i].disabled = true;
 			}
 
-			var values = this.values.filter(function(v) { return v.target });
-			var targets = {};
-			for (var i = 0; i < values.length; i++) {
-				var value = values[i];
-				targets[value.name] = {
-					target : +value.target,
-					orMore : value.orMore
-				};
-			}
-
-			var faces = this.faces;
-			function check(dieRolls) {
-				var results = {};
-				for (var i = 0; i < dieRolls.length; i++) {
-					var rollValues = dieRolls[i];
-					for (var r = 0; r < rollValues.length; r++) {
-						var rv = rollValues[r];
-						results[rv] = (results[rv] || (results[rv] = 0)) + 1;
-					}
-				}
-
-				var valid = true;
-				for (var name in targets) {
-					if (targets[name].orMore) {
-						valid &= results[name] >= targets[name].target;
-					} else {
-						valid &= results[name] === targets[name].target;
-					}
-				}
-
-				return valid;
-			}
-
+			
+			var targets = createTargets(this.values);
+			var pool = createDicePool(this.dice, this.pool);
 			var totalRolls = +this.rollsPower, favorableRolls = 0;
-			var dice = this.dice, pool = this.pool.map(function(d) {
-				return dice.find(function(die) {
-					return die.code === d;
-				});
-			});
-			for (var i = 0; i < totalRolls; i++) {
-				var rolledDice = rollPool(pool).map(function(f) {
-					return faces.find(function(face) {
-						return face.code === f;
-					}).body;
-				});
-				
-				if (check(rolledDice)) {
-					favorableRolls++;
+			
+			var self = this;
+
+			// rock and roll
+			setTimeout(function() {
+				for (var i = 0; i < totalRolls; i++) {
+					var rolledFaces = rollPool(pool);
+					var rolledValues = expandFaceValues(rolledFaces, self.faces);
+					var valueCount = count(rolledValues);
+					
+					if (checkRolledValues(valueCount, targets)) {
+						favorableRolls++;
+					}
 				}
-			}
 
-			this.rollResult = 'Rolled:      ' + totalRolls + '\n' +
-							  'Favorable:   ' + favorableRolls + '\n' +
-							  'Probability: ' + (100 * favorableRolls / totalRolls).toFixed(2) + '%';
+				// write result
+				self.rollResult = 'Rolled:                      ' + totalRolls + '\n' +
+						  'Favorable:                   ' + favorableRolls + '\n' +
+						  'Probability:                 ' + (100 * favorableRolls / totalRolls).toFixed(2) + '%';
 
-			for (var i = 0; i < inputs.length; i++) {
-				inputs[i].disabled = false;
-			}
+				// re-enable all inputs
+				for (var i = 0; i < inputs.length; i++) {
+					console.log(inputs[i].disabled)
+					inputs[i].disabled = false;
+				}
+			}, 10);
 		}
 	}
 });
 
-function rollPool(pool) {
-	return pool.map(function(die) {
-		return rollDie(die);
+var RE_TARGET = /^\s*(\d+)\s*(\+?)\s*$/;
+function createTargets(values) {
+	return values
+		.filter(function(v) {
+			return v.target != null && (''+v.target).trim();
+		})
+		.map(function(v) {
+			var target = RE_TARGET.exec(v.target);
+			return {
+				name : v.name,
+				target : +target[1],
+				orMore : target[2] === '+'
+			};
+		});
+}
+function checkRolledValues(values, targets) {
+	var valid = true;
+
+	for (var i = 0; i < targets.length; i++) {
+		var target = targets[i];
+		if (target.orMore) {
+			valid &= values[target.name] >= target.target;
+		} else {
+			valid &= values[target.name] === target.target;
+		}
+	}
+
+	return valid;
+}
+function createDicePool(dice, pool) {
+	return pool.map(function(dcode) {
+		return dice.find(function(die) {
+			return die.code === dcode;
+		});
 	});
 }
-function rollDie(die) {
-	var roll = 0 | Math.random() * die.body.length;
-	return die.body[roll];
+function count(values) {
+	var result = {};
+	for (var i = 0; i < values.length; i++) {
+		var value = values[i];
+		result[value] = (result[value] || (result[value] = 0)) + 1;
+	}
+	return result;
+}
+function rollPool(pool) {
+	return pool.map(function(die) {
+		var roll = 0 | Math.random() * die.body.length;
+		return die.body[roll];
+	});
+}
+function expandFaceValues(rolledFaces, faces) {
+	return rolledFaces
+		.map(function(fcode) {
+			var face = faces.find(function(face) {
+				return face.code === fcode;
+			});
+
+			return face ? face.body : [];
+		})
+		.reduce(function(accu, fvalues) {
+			return accu.concat(fvalues);
+		}, []);
 }
 
+// TODO : gestire caratteri accentati
 var TOK_WS = /\s+/g;
-var TOK_CODE = /\w\b/g;
+var TOK_CODE = /[\w]\b/g;
 var TOK_LBRACK = /\[/g;
 var TOK_RBRACK = /\]/g;
 var TOK_EQ = /=/g;
 var TOK_PLUS = /\+/g;
 var TOK_NUMBER = /\d+/g;
 var TOK_TIMES = /x/g;
-var TOK_NAME = /\w+/g;
+var TOK_NAME = /[\w]+/gi;
 
 var TOK_ANY = /\S+/g;
 

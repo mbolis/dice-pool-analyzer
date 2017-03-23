@@ -2,60 +2,77 @@
 <html>
 	<head>
 		<title>Special Lucio's Pooled Dice Rolling</title>
+		<meta charset=utf8>
+		<link rel=stylesheet href=style.css>
 		<script src=vue.js></script>
 	</head>
 	<body>
 		<div id=app>
 			<h1>Special Lucio's Pooled Dice Rolling</h1>
-			<div id=faces>
-				<h2>Faces</h2>
-				<textarea id=faces_spec v-model.trim=facesSpec @input=parseFaces></textarea>
-				<pre id=faces_result v-html=facesResult></pre>
-			</div>
-			<div id=dice>
-				<h2>Dice</h2>
-				<textarea id=dice_spec v-model.trim=diceSpec @input=parseDice></textarea>
-				<pre id=dice_result v-html=diceResult></pre>
-			</div>
-			<div id=pool>
-				<h2>Pool</h2>
-				<ul id=pool_buttons>
-					<li class=pool_btn_entry v-for="die in dice">
-						<label>{{ die.code }}</label>
-						<button @click=addToPool(die)>+</button>
-						<button @click=removeFromPool(die)>-</button>
-					</li>
-				</ul>
-				<pre id=pool_content v-html=poolContent></pre>
-			</div>
-			<div id=rolls>
-				<h2>Rolls</h2>
-				<div id=rolls_power>
-					<h3>Power</h3>
-					<label for=rolls_power_weak>
-						<input type=radio id=rolls_power_weak value=1000 v-model=rollsPower> Weak
-					</label>
-					<label for=rolls_power_magic>
-						<input type=radio id=rolls_power_magic value=100000 v-model=rollsPower> Magic
-					</label>
-					<label for=rolls_power_more_magic>
-						<input type=radio id=rolls_power_more_magic value=10000000 v-model=rollsPower> More Magic
-					</label>
+			<div id=left_column class=column>
+				<div id=faces class=panel>
+					<h2>Faces</h2>
+					<div class=pbody>
+						<textarea id=faces_spec v-model.trim=facesSpec @input=parseFaces></textarea>
+						<pre id=faces_result v-html=facesResult></pre>
+					</div>
 				</div>
-				<div id=rolls_target v-if=values.length>
-					<input type=checkbox id=rolls_all_more v-model=rollsAllOrMore @click=selectAllOrMore>
-					<ul id=rolls_values>
-						<li v-for="value in values">
-							<label>{{ value.name }}</label>
-							<input type=number v-model=value.target>
-							<label>
-								<input type=checkbox v-model=value.orMore> or more
+				<div id=dice class=panel>
+					<h2>Dice</h2>
+					<div class=pbody>
+						<textarea id=dice_spec v-model.trim=diceSpec @input=parseDice></textarea>
+						<pre id=dice_result v-html=diceResult></pre>
+					</div>
+				</div>
+				<div id=pool class=panel>
+					<h2>Pool <span id=pool_size v-if=pool.length>size={{ pool.length }}</span></h2>
+					<div class=pbody>
+						<ul id=pool_buttons>
+							<li class=pool_btn_entry v-for="die in dice">
+								<label>{{ die.code }}</label>
+								<div class=pool_btn_entry_buttons>
+									<button @click=addToPool(die)>+</button>
+									<button @click=removeFromPool(die)>-</button>
+								</div>
+							</li>
+						</ul>
+						<pre id=pool_content v-html=poolContent></pre>
+					</div>
+				</div>
+			</div>
+			<div class=column>
+				<div id=rolls class=panel>
+					<h2>Rolls</h2>
+					<div class=pbody>
+						<div id=rolls_power>
+							<h3>Power</h3>
+							<label for=rolls_power_weak>
+								<input type=radio id=rolls_power_weak value=1000 v-model=rollsPower> Weak
 							</label>
-						</li>
-					</ul>
+							<label for=rolls_power_magic>
+								<input type=radio id=rolls_power_magic value=100000 v-model=rollsPower> Magic
+							</label>
+							<label for=rolls_power_more_magic>
+								<input type=radio id=rolls_power_more_magic value=10000000 v-model=rollsPower> More Magic
+							</label>
+						</div>
+						<div id=rolls_target v-if=values.length>
+							<h3>Target Values</h3>
+							<table id=rolls_values>
+								<tr v-for="(value, i) in values">
+									<td> <label :for="'rolls_value_' + i">{{ value.name }}</label> </td>
+									<td> <input type=text :id="'rolls_value_' + i" v-model=value.target> </td>
+								</tr>
+							</table>
+						</div>
+						<div id=rock_and_rolls>
+							<button @click=rollTheDice>By my hand, set the World in motion!</button>
+						</div>
+					</div>
 				</div>
-				<button @click=rollTheDice>By my hand, set the World in motion!</button>
-				<pre v-html=rollResult></pre>
+				<div id=result class=panel v-if=rollResult>
+					<pre v-html=rollResult></pre>
+				</div>
 			</div>
 		</div>
 

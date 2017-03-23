@@ -1,0 +1,163 @@
+body {
+	color:#444;
+}
+textarea {
+	display:inline-block;
+	vertical-align:top;
+	margin:0;
+	padding:0.125em;
+	border:1px solid silver;
+	resize:none;
+	overflow:auto;
+}
+pre {
+	display:inline-block;
+	margin:0;
+	padding:0.25em;
+	overflow:auto;
+	white-space:pre-wrap;
+}
+ul {
+	list-style:none;
+	display:inline-block;
+	vertical-align:top;
+	margin:0;
+	padding:0;
+}
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance:none;
+	margin:0;
+}
+.column {
+	width:500px;
+	float:left;
+	padding:0.5em;
+}
+.panel {
+	margin:0.5em 0;
+	border:1px solid silver;
+	border-radius:0.5em;
+	overflow:hidden;
+}
+.panel h2 {
+	margin:0;
+	padding:0.5em 1em;
+	border-bottom:1px solid silver;
+	background:#eee;
+}
+
+#faces textarea, #dice textarea {
+	width:40%;
+	height:120px;
+	margin:1px;
+	border-radius:0 0 0 0.5em;
+}
+#faces pre, #dice pre {
+	width:55%;
+	height:120px;
+}
+
+#pool_size {
+	font-size:80%;
+	float:right;
+}
+#pool_buttons {
+	padding:0.5em;
+}
+#pool_buttons label {
+	font-family:monospace;
+	display:inline-block;
+	width:2.5em;
+	height:2.5em;
+	border:1px solid silver;
+	border-radius:0.5em;
+	line-height:2.5em;
+	text-align:center;
+}
+.pool_btn_entry_buttons {
+	display:inline-block;
+	vertical-align:top;
+	height:2.5em;
+	width:1em;
+}
+.pool_btn_entry button {
+	display:block;
+	width:1.25em;
+	height:1.25em;
+	margin:0.125em 0;
+	padding:0.125em;
+	font-size:70%;
+	line-height:0.75em;
+	border:1px solid #ddd;
+	border-radius:50%;
+	cursor:pointer;
+}
+#pool_content {
+	display:inline-block;
+	padding:0.5em;
+	width:80%;
+	float:right;
+}
+#pool_content span {
+	display:inline-block;
+	width:2em;
+	height:2em;
+	margin:0.25em;
+	border:1px solid silver;
+	border-radius:0.5em;
+	line-height:2em;
+	text-align:center;
+}
+
+#rolls h3 {
+	display:inline-block;
+	vertical-align:top;
+	margin:0;
+	padding:0 1em;;
+}
+#rolls_power, #rolls_target {
+	padding:0.5em;
+}
+#rolls_power h3 {
+}
+#rolls_power label {
+	font-family:monospace;
+	font-size:120%;
+}
+#rolls_select_all {
+	color:#aaa;
+	font-size:80%;
+}
+#rolls_values {
+	display:inline-block;
+	margin:0.25em 2em;
+}
+#rolls_values label {
+	padding:1em;
+}
+#rolls_values input[type=text] {
+	display:inline-block;
+	width:3em;
+	line-height:1em;
+	text-align:right;
+}
+#rock_and_rolls {
+	text-align:center;
+	padding:1em;
+}
+#rock_and_rolls button {
+	padding:0.5em 2em;
+	border:1px solid silver;
+	border-radius:0.5em;
+	cursor:pointer;
+}
+
+#result pre {
+	padding:0.5em;
+	font-size:150%;
+}
