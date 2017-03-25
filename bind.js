@@ -62,6 +62,18 @@ var vm = new Vue({
 		}
 	},
 	mounted : function() {
+		if (localStorage) {
+			var facesSpec = localStorage.getItem('facesSpec');
+			if (facesSpec) {
+				this.facesSpec = facesSpec;
+			}
+
+			var diceSpec = localStorage.getItem('diceSpec');
+			if (diceSpec) {
+				this.diceSpec = diceSpec;
+			}
+		}
+
 		this.parseFaces();
 		this.parseDice();
 	},
@@ -88,6 +100,8 @@ var vm = new Vue({
 					return;
 				}
 			}
+
+			localStorage && (localStorage.setItem('facesSpec', this.facesSpec));
 
 			if (this.errors.dice) this.parseDice();
 
@@ -125,8 +139,11 @@ var vm = new Vue({
 				} catch (err) {
 					console.warn(err);
 					this.errors.dice = 'Error @ line ' + (i+1) + ': ' + err;
+					return;
 				}
 			}
+
+			localStorage && (localStorage.setItem('diceSpec', this.diceSpec));
 		}, 200),
 		addToPool : function(die) {
 			this.pool.push(die.code);

@@ -44,6 +44,15 @@
 				<div id=rolls class=panel>
 					<h2>Rolls</h2>
 					<div class=pbody>
+						<div id=rolls_target v-if=values.length>
+							<h3>Target Values</h3>
+							<table id=rolls_values>
+								<tr v-for="(value, i) in values">
+									<td> <label :for="'rolls_value_' + i">{{ value.name }}</label> </td>
+									<td> <input type=text :id="'rolls_value_' + i" v-model=value.target> </td>
+								</tr>
+							</table>
+						</div>
 						<div id=rolls_power>
 							<h3>Power</h3>
 							<label for=rolls_power_weak>
@@ -55,15 +64,6 @@
 							<label for=rolls_power_more_magic>
 								<input type=radio id=rolls_power_more_magic value=10000000 v-model=rollsPower> More Magic
 							</label>
-						</div>
-						<div id=rolls_target v-if=values.length>
-							<h3>Target Values</h3>
-							<table id=rolls_values>
-								<tr v-for="(value, i) in values">
-									<td> <label :for="'rolls_value_' + i">{{ value.name }}</label> </td>
-									<td> <input type=text :id="'rolls_value_' + i" v-model=value.target> </td>
-								</tr>
-							</table>
 						</div>
 						<div id=rock_and_rolls>
 							<button @click=rollTheDice>By my hand, set the World in motion!</button>
